@@ -5,17 +5,15 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include "gtest/gtest.h"
 
 #define FILE_PATH "dataset.txt"
 #define ARBITRARY_RANGE 3
 
-std::map<int, int> readFileIntoYears(std::string aFilePath)
+std::unordered_map<int, int> readFileIntoYears(std::string aFilePath)
 {
-	// unordered_map is faster to search and insert in
-	// but it doesn't give the ability to check for "most recent years", hence: unordered
-	std::map<int, int> years;
+	std::unordered_map<int, int> years;
 	std::ifstream myfile;
 	std::string line;
 
@@ -38,32 +36,35 @@ std::map<int, int> readFileIntoYears(std::string aFilePath)
 	return years;
 }
 
-int getRangeofMaxAlive(std::map<int, int> aYears, int aRange)
+int getRangeofMaxAlive(std::unordered_map<int, int> aYears, int aRange)
 {
-	auto maxSum = aYears.rbegin()->second;
-	auto year = aYears.rbegin()->first;
+	if (aRange > aYears.size())
+		return -1;
+
+	auto maxSum = 0;
+	auto foundYear = -1;
 
 	// reverse iterating to get most recent first
-	for (auto it = aYears.rbegin(); it != aYears.rend(); it++)
+	for (int iterator = 1993; iterator > 0; iterator--)
 	{
 		int sumYears = 0;
 		for (int n = 0; n < aRange; n++)
 		{
-			// to make sure we don't go out of range and also 
-			if (aYears.count(it->first - n) > 0)
+			// to make sure we don't go out of range
+			if (aYears.count(iterator - n) > 0)
 			{
-				sumYears += aYears[it->first - n];
+				sumYears += aYears[iterator - n];
 			}
 		}
 
 		if (sumYears > maxSum)
 		{
-			year = it->first;
+			foundYear = iterator;
 			maxSum = sumYears;
 		}
 	}
 
-	return year;
+	return foundYear;
 }
 
 int main()
@@ -85,7 +86,7 @@ int main()
 }
 
 TEST(TEST_METHOD, Test1RangeAtEnd) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 5;
@@ -97,7 +98,7 @@ TEST(TEST_METHOD, Test1RangeAtEnd) {
 }
 
 TEST(TEST_METHOD, Test2RangeAtEnd) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 5;
@@ -109,7 +110,7 @@ TEST(TEST_METHOD, Test2RangeAtEnd) {
 }
 
 TEST(TEST_METHOD, Test3RangeAtEnd) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 6;
@@ -121,7 +122,7 @@ TEST(TEST_METHOD, Test3RangeAtEnd) {
 }
 
 TEST(TEST_METHOD, Test1RangeAtBegining) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 6;
 	testData[1992] = 6;
 	testData[1991] = 5;
@@ -133,7 +134,7 @@ TEST(TEST_METHOD, Test1RangeAtBegining) {
 }
 
 TEST(TEST_METHOD, Test2RangeAtBegining) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 4;
 	testData[1991] = 5;
@@ -145,7 +146,7 @@ TEST(TEST_METHOD, Test2RangeAtBegining) {
 }
 
 TEST(TEST_METHOD, Test3RangeAtBegining) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 5;
@@ -157,7 +158,7 @@ TEST(TEST_METHOD, Test3RangeAtBegining) {
 }
 
 TEST(TEST_METHOD, Test2Range_MostRecentOnly) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 5;
@@ -169,7 +170,7 @@ TEST(TEST_METHOD, Test2Range_MostRecentOnly) {
 }
 
 TEST(TEST_METHOD, Test3Range_MostRecentOnly) {
-	std::map<int, int> testData;
+	std::unordered_map<int, int> testData;
 	testData[1993] = 7;
 	testData[1992] = 6;
 	testData[1991] = 6;
@@ -178,4 +179,21 @@ TEST(TEST_METHOD, Test3Range_MostRecentOnly) {
 	testData[1988] = 6;
 	testData[1987] = 7;
 	EXPECT_EQ(getRangeofMaxAlive(testData, 2), 1993);
+}
+TEST(TEST_METHOD, Test1RangeWithOnly1Year) {
+	std::unordered_map<int, int> testData;
+	testData[1993] = 7;
+	EXPECT_EQ(getRangeofMaxAlive(testData, 1), 1993);
+}
+
+TEST(TEST_METHOD, Test2RangeWithOnly1Year) {
+	std::unordered_map<int, int> testData;
+	testData[1993] = 7;
+	EXPECT_EQ(getRangeofMaxAlive(testData, 2), -1);
+}
+
+TEST(TEST_METHOD, TestYearOutOfRange) {
+	std::unordered_map<int, int> testData;
+	testData[1994] = 7;
+	EXPECT_EQ(getRangeofMaxAlive(testData, 1), -1);
 }
