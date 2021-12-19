@@ -18,3 +18,6 @@ Used unordered_map, as it is faster in inserting and searching which was needed,
 
 ## Interface
 Haven't really bothered much as I suppose it isn't the reason behind the task? but a simple cout was enough to show resulted range in order of oldest year first
+
+## Files
+All sln and .git files are included just in case you wanted to open the solution but all the code is added in BestTimeAlive.cpp
