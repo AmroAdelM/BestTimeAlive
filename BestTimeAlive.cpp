@@ -1,6 +1,3 @@
-// BestTimeAlive.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -36,10 +33,13 @@ std::unordered_map<int, int> readFileIntoYears(std::string aFilePath)
 	return years;
 }
 
+// returns -1 if a failure of search or if range is bigger than count 
 int getRangeofMaxAlive(std::unordered_map<int, int> aYears, int aRange)
 {
 	if (aRange > aYears.size())
+	{
 		return -1;
+	}
 
 	auto maxSum = 0;
 	auto foundYear = -1;
@@ -50,7 +50,7 @@ int getRangeofMaxAlive(std::unordered_map<int, int> aYears, int aRange)
 		int sumYears = 0;
 		for (int n = 0; n < aRange; n++)
 		{
-			// to make sure we don't go out of range
+			// to make sure we don't insert unreferenced year in map
 			if (aYears.count(iterator - n) > 0)
 			{
 				sumYears += aYears[iterator - n];
